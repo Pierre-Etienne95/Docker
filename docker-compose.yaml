@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  app1:
+    image: petiennebernard013/app1:dev
+    container_name: app1
+    networks:
+      - app-network
+
+  app2:
+    image: petiennebernard013/app2:dev
+    ports:
+      - "8080-8090:8080"  # Accessible directement sans passer par le proxy
+    networks:
+      - app-network
+    deploy:
+      replicas: 5        # Faire 5 replicas de l'appli
+
+  app3:
+    image: petiennebernard013/app3:dev
+    container_name: app3
+    networks:
+      - app-network
+
+  app4:
+    image: petiennebernard013/app4:dev
+    container_name: app4
+    networks:
+      - app-network
+
+  app5:
+    image: petiennebernard013/app5:dev
+    container_name: app5
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:mainline-alpine3.20-slim
+    ports:
+      - "7010:7010"  # Le reverse proxy écoute sur le port 7010
+      - "7011:7011"
+      - "7012:7012"
+      - "7013:7013"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf  # Fichier de configuration NGINX
+    depends_on:
+      - app1
+      - app3
+      - app4
+      - app5
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
